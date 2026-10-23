@@ -3,10 +3,12 @@ import assert from 'node:assert/strict';
 import { readFileSync, existsSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
-import { validateManifest, normalizeImage, assetUrl, loadAssets, IMAGE_KEYS, SOUND_KEYS } from '../src/assets.js';
+import { validateManifest, normalizeImage, assetUrl, loadAssets, IMAGE_KEYS, OPTIONAL_IMAGE_KEYS, SOUND_KEYS } from '../src/assets.js';
 
 const ASSETS = path.join(path.dirname(fileURLToPath(import.meta.url)), '..', 'assets');
 const manifest = JSON.parse(readFileSync(path.join(ASSETS, 'manifest.json'), 'utf8'));
+
+const DECLARED_IMAGE_KEYS = [...IMAGE_KEYS, ...OPTIONAL_IMAGE_KEYS.filter((key) => manifest.images[key])];
 
 const PNG_SIGNATURE = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]);
 
@@ -16,7 +18,7 @@ test('the shipped manifest declares every required key', () => {
 
 test('every file the manifest references exists', () => {
   const files = [
-    ...IMAGE_KEYS.flatMap((key) => normalizeImage(manifest.images[key]).frames),
+    ...DECLARED_IMAGE_KEYS.flatMap((key) => normalizeImage(manifest.images[key]).frames),
     ...SOUND_KEYS.map((key) => manifest.sounds[key]),
   ];
   for (const file of files) assert.ok(existsSync(path.join(ASSETS, file)), `${file} is missing`);
@@ -24,7 +26,7 @@ test('every file the manifest references exists', () => {
 
 // Art may be any resolution (it's scaled to the declared size), so only check PNGs are real, non-empty images.
 test('referenced PNG images are valid and not empty', () => {
-  for (const key of IMAGE_KEYS) {
+  for (const key of DECLARED_IMAGE_KEYS) {
     for (const file of normalizeImage(manifest.images[key]).frames.filter((f) => f.endsWith('.png'))) {
       const buf = readFileSync(path.join(ASSETS, file));
       assert.ok(buf.subarray(0, 8).equals(PNG_SIGNATURE), `${file} is not a PNG`);
@@ -47,13 +49,22 @@ test('validation reports missing keys, sizes and digit count', () => {
   assert.deepEqual(validateManifest(null), ['manifest is not a JSON object']);
 });
 
+test('optional images may be left out, but are checked when present', () => {
+  const without = structuredClone(manifest);
+  delete without.images.birdDead;
+  assert.deepEqual(validateManifest(without), []);
+  const broken = structuredClone(manifest);
+  broken.images.birdDead = { src: 'images/x.png', width: 0, height: 40 };
+  assert.ok(validateManifest(broken).some((p) => p.includes('images.birdDead') && p.includes('width')));
+});
+
 test('a single "src" and a "frames" list normalize the same way', () => {
   assert.deepEqual(normalizeImage({ src: 'a.png', width: 1, height: 2 }), { frames: ['a.png'], width: 1, height: 2 });
   assert.deepEqual(normalizeImage({ frames: ['a.png', 'b.png'], width: 1, height: 2 }).frames, ['a.png', 'b.png']);
 });
 
 test('asset URLs carry the build id', () => {
-  assert.equal(assetUrl('assets/', 'images/bird-0.png', 'abc123-20261022T1900Z'), 'assets/images/bird-0.png?v=abc123-20261022T1900Z');
+  assert.equal(assetUrl('assets/', 'images/happy-0.png', 'abc123-20261022T1900Z'), 'assets/images/happy-0.png?v=abc123-20261022T1900Z');
   assert.equal(assetUrl('assets/', 'x.png', 'a b'), 'assets/x.png?v=a%20b');
 });
 
@@ -70,6 +81,7 @@ test('failed assets fall back and log a warning naming the key and path', async 
   fixture.images.bird = { frames: ['t/bird-a.png', 't/bird-b.png', 't/bird-c.png'], width: 34, height: 24 };
   fixture.images.background = { src: 't/broken-bg.png', width: 288, height: 512 };
   fixture.sounds.flap = 't/broken-flap.wav';
+  delete fixture.images.birdDead;
   const urls = [];
   const assets = await loadAssets(fixture, {
     build: 'b1',
@@ -86,6 +98,7 @@ test('failed assets fall back and log a warning naming the key and path', async 
   assert.equal(assets.images.background.frames[0].width, 288);
   assert.equal(assets.images.bird.frames.length, 3);
   assert.equal(assets.images.bird.frames[0].ok, true);
+  assert.equal(assets.images.birdDead, undefined);
   assert.equal(assets.sounds.flap.src, null);
   assert.equal(warnings.length, 2);
   assert.ok(warnings.some((w) => w.includes('background') && w.includes('t/broken-bg.png')));

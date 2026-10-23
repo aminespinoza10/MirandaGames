@@ -3,9 +3,12 @@
 
 export const IMAGE_KEYS = ['bird', 'background', 'ground', 'pipeTop', 'pipeBottom', 'digits', 'getReady', 'gameOver'];
 export const SOUND_KEYS = ['flap', 'point', 'hit', 'die'];
+// May be left out of the manifest; the game then reuses another image (see render.js).
+export const OPTIONAL_IMAGE_KEYS = ['birdDead'];
 
 const FALLBACK_COLORS = {
   bird: '#f8d81f',
+  birdDead: '#f8d81f',
   background: '#4ec0ca',
   ground: '#ded895',
   pipeTop: '#73bf2e',
@@ -29,10 +32,10 @@ export function normalizeImage(entry) {
 export function validateManifest(manifest) {
   const problems = [];
   if (!manifest || typeof manifest !== 'object') return ['manifest is not a JSON object'];
-  for (const key of IMAGE_KEYS) {
+  for (const key of [...IMAGE_KEYS, ...OPTIONAL_IMAGE_KEYS]) {
     const entry = manifest.images?.[key];
     if (!entry) {
-      problems.push(`images.${key} is missing`);
+      if (IMAGE_KEYS.includes(key)) problems.push(`images.${key} is missing`);
       continue;
     }
     const { frames, width, height } = normalizeImage(entry);
@@ -70,7 +73,7 @@ function fallbackImage(key, index, width, height, createCanvas) {
     const y = key === 'getReady' ? 4 : height / 2;
     ctx.strokeText(label, width / 2, y);
     ctx.fillText(label, width / 2, y);
-  } else if (key === 'bird') {
+  } else if (key === 'bird' || key === 'birdDead') {
     ctx.fillStyle = color;
     ctx.beginPath();
     ctx.ellipse(width / 2, height / 2, width / 2, height / 2, 0, 0, Math.PI * 2);
@@ -141,7 +144,8 @@ export async function loadAssets(manifest, options = {}) {
   } = options;
 
   const images = {};
-  const imageJobs = IMAGE_KEYS.map(async (key) => {
+  const declared = [...IMAGE_KEYS, ...OPTIONAL_IMAGE_KEYS.filter((key) => manifest.images[key])];
+  const imageJobs = declared.map(async (key) => {
     const { frames, width, height } = normalizeImage(manifest.images[key]);
     const loaded = await Promise.all(
       frames.map(async (path, index) => {

@@ -33,21 +33,22 @@ No code changes needed.
 
 ```json
 "bird": {
-  "frames": ["images/bird-0.png", "images/bird-1.png", "images/bird-2.png"],
-  "width": 34,
-  "height": 24
+  "frames": ["images/happy-0.png", "images/happy-1.png"],
+  "width": 32,
+  "height": 34
 }
 ```
 
 - Paths are relative to `assets/`.
 - Use `"src": "images/file.png"` for a single image, or `"frames": [...]` for an animation.
 - **`width` and `height` are the size on screen, in game pixels** (the game is 288 × 512). Your image can have any
-  resolution: it gets scaled to this size. For a sharper bird, draw it at 4× (136 × 96) and keep `34 × 24` here.
+  resolution: it gets scaled to this size. For sharper art, draw it at 4× (the puppy is 128 × 136 for a `32 × 34` entry).
   Keep the same proportions as your image, or it will look stretched.
 
 | Key | What it is | Notes |
 | --- | --- | --- |
 | `bird` | The player | Any number of `frames` (1 = no flapping animation). Its size is also its hitbox, minus a small margin. |
+| `birdDead` | The player after a crash (optional) | Shown upright while it falls and on the game over screen, standing on the bottom edge of `bird` (taller art grows upward). Leave it out to keep using `bird`. |
 | `background` | Sky / scenery | Drawn from the top; repeated sideways if narrower than 288. |
 | `ground` | Scrolling floor | Repeats sideways, so make the left and right edges match. Its `height` sets where the floor is: taller ground = less room to fly. |
 | `pipeTop` | Upper pipe | The open end faces down. Stretched if a gap needs more length than the image has. |
@@ -73,13 +74,14 @@ If the manifest itself has a mistake (a missing key, a missing size, not 10 digi
 Gravity, flap strength, scroll speed, pipe gap and spacing live in `src/config.js`, separate from the art.
 Each value is commented. Distances are game pixels and speeds are per step (60 steps per second).
 
-### Start over with the placeholder art
+### Regenerate the art
 
 ```bash
 npm run placeholders
 ```
 
-This regenerates the original placeholder images and sounds in `assets/` and **overwrites files with the same names**.
+This redraws the candy-land background and floor, the candy sticks, the digits, the title overlays and the sounds in `assets/`,
+and **overwrites files with the same names**. The puppy sprites (`happy-*.png`) are not generated, so they are never touched.
 
 ## Deploy to the home server
 
@@ -109,5 +111,5 @@ src/assets.js           manifest loading and fallbacks
 src/render.js, input.js, loop.js                drawing, controls, fixed 60 Hz timestep
 assets/                 manifest.json, images/, sounds/
 test/                   node:test unit tests
-tools/                  placeholder generator (not deployed)
+tools/                  art and sound generator (not deployed)
 ```

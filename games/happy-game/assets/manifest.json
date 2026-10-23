@@ -5,10 +5,11 @@
       "width": 32,
       "height": 34
     },
+    "birdDead": { "src": "images/happy-dead.png", "width": 32, "height": 40 },
     "background": { "src": "images/background.png", "width": 288, "height": 512 },
     "ground": { "src": "images/ground.png", "width": 336, "height": 112 },
-    "pipeTop": { "src": "images/pipe-top.png", "width": 52, "height": 320 },
-    "pipeBottom": { "src": "images/pipe-bottom.png", "width": 52, "height": 320 },
+    "pipeTop": { "src": "images/candy-stick-top.png", "width": 52, "height": 320 },
+    "pipeBottom": { "src": "images/candy-stick-bottom.png", "width": 52, "height": 320 },
     "digits": {
       "frames": [
         "images/digit-0.png", "images/digit-1.png", "images/digit-2.png", "images/digit-3.png", "images/digit-4.png",

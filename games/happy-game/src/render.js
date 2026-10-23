@@ -39,6 +39,13 @@ function drawBird(ctx, bird, image) {
   ctx.restore();
 }
 
+// After a crash: upright (no nose-dive), centered on the bird and standing on the bird's bottom edge,
+// so art taller than the bird (a halo, say) grows upward.
+function drawDeadBird(ctx, bird, image) {
+  const bottom = bird.y + bird.height / 2;
+  ctx.drawImage(image.frames[0], Math.round(bird.x - image.width / 2), Math.round(bottom - image.height), image.width, image.height);
+}
+
 // Draws a number with the digit sprites. align: 'center' | 'right'.
 function drawNumber(ctx, digits, value, x, y, scale = 1, align = 'center') {
   const text = String(value);
@@ -120,7 +127,8 @@ export function render(ctx, game, assets) {
   drawBackground(ctx, images.background);
   drawPipes(ctx, game.pipes.list, images, groundY);
   drawGround(ctx, images.ground, game.groundOffset, groundY);
-  drawBird(ctx, game.bird, images.bird);
+  if (game.phase === GAME_OVER && images.birdDead) drawDeadBird(ctx, game.bird, images.birdDead);
+  else drawBird(ctx, game.bird, images.bird);
 
   if (game.phase === READY) centered(ctx, images.getReady, 80);
   if (game.phase === PLAYING) drawNumber(ctx, images.digits, game.score, WIDTH / 2, 30);
