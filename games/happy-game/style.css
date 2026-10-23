@@ -1,0 +1,41 @@
+html,
+body {
+  margin: 0;
+  height: 100%;
+  background: #1b1b1b;
+  overflow: hidden;
+  overscroll-behavior: none;
+}
+
+#stage {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#game {
+  display: block;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+#message {
+  position: absolute;
+  max-width: 22rem;
+  margin: 0 1rem;
+  padding: 1rem 1.25rem;
+  border-radius: 8px;
+  background: #fff;
+  color: #222;
+  font: 16px/1.4 system-ui, sans-serif;
+}
+
+#message code {
+  font-size: 0.9em;
+}

@@ -1,0 +1,11 @@
+{
+  "name": "happy-game",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "A Flappy Bird clone for the browser with swappable assets.",
+  "scripts": {
+    "test": "node --test \"test/**/*.test.js\"",
+    "placeholders": "node tools/make-placeholders.mjs"
+  }
+}

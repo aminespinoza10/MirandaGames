@@ -1,0 +1,29 @@
+{
+  "images": {
+    "bird": {
+      "frames": ["images/happy-0.png", "images/happy-1.png"],
+      "width": 32,
+      "height": 34
+    },
+    "background": { "src": "images/background.png", "width": 288, "height": 512 },
+    "ground": { "src": "images/ground.png", "width": 336, "height": 112 },
+    "pipeTop": { "src": "images/pipe-top.png", "width": 52, "height": 320 },
+    "pipeBottom": { "src": "images/pipe-bottom.png", "width": 52, "height": 320 },
+    "digits": {
+      "frames": [
+        "images/digit-0.png", "images/digit-1.png", "images/digit-2.png", "images/digit-3.png", "images/digit-4.png",
+        "images/digit-5.png", "images/digit-6.png", "images/digit-7.png", "images/digit-8.png", "images/digit-9.png"
+      ],
+      "width": 24,
+      "height": 36
+    },
+    "getReady": { "src": "images/get-ready.png", "width": 184, "height": 267 },
+    "gameOver": { "src": "images/game-over.png", "width": 192, "height": 42 }
+  },
+  "sounds": {
+    "flap": "sounds/flap.wav",
+    "point": "sounds/point.wav",
+    "hit": "sounds/hit.wav",
+    "die": "sounds/die.wav"
+  }
+}
